@@ -1,0 +1,15 @@
+# See https://druid.apache.org/docs/latest/tutorials/#prerequisites
+- name: Install required dependencies
+  yum:
+    name:
+      - java-17-openjdk
+      - perl
+      - wget
+      - tar
+    state: latest
+    update_cache: true
+
+- name: Create directory for Druid binaries
+  file:
+    path: /opt/druid
+    state: directory

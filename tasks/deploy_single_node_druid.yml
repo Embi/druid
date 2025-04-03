@@ -1,0 +1,36 @@
+- name: Create directory for Druid binaries
+  file:
+    path: /opt/druid
+    state: directory
+
+- name: Download and unpack Druid binaries 
+  unarchive:
+    src: https://dlcdn.apache.org/druid/32.0.0/apache-druid-32.0.0-bin.tar.gz
+    dest: /opt/druid/
+    remote_src: yes
+    extra_opts:
+      - "--strip-components"
+      - "1"
+    creates: /opt/druid/bin
+
+- name: Install Prometheus Emitter extension
+  shell:
+    cmd: java --add-opens java.base/java.lang=ALL-UNNAMED -classpath "lib/*" org.apache.druid.cli.Main tools pull-deps -c "org.apache.druid.extensions.contrib:prometheus-emitter:27.0.0"
+    chdir: /opt/druid/
+    creates: /opt/druid/extensions/prometheus-emitter
+
+- name: Configure Druid
+  template:
+    src: ../templates/common.runtime.properties.j2
+    dest: /opt/druid/conf/druid/auto/_common/common.runtime.properties
+
+- name: Create Druid service 
+  copy:
+    src: ../files/druid.service 
+    dest: /etc/systemd/system/druid.service
+
+- name: Enable and start Druid service
+  ansible.builtin.systemd:
+    name: druid.service
+    state: restarted
+    enabled: true

@@ -1,0 +1,8 @@
+---
+- name: Deploy Druid
+  hosts: "{{env_target}}"
+  become: true
+  tasks:
+    - import_tasks: ./tasks/install_prerequisites.yml
+    - import_tasks: ./tasks/generate_java_keystores.yml
+    - import_tasks: ./tasks/deploy_single_node_druid.yml

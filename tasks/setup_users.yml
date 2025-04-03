@@ -1,0 +1,55 @@
+- name: Use https security api
+  set_fact: 
+    druid_security_api: "https://{{druid_domain}}:8281/druid-ext/basic-security"
+  when: druid_tls
+
+- name: Use http security api
+  set_fact: 
+    druid_security_api: "http://{{inventory_hostname}}:8081/druid-ext/basic-security"
+  when: not druid_tls
+
+- name: Create Authorizer Roles
+  shell: >
+    curl -k -X POST -u "admin:{{ druid_admin_password }}"
+    "{{ druid_security_api }}/authorization/db/Authorizer/roles/{{item}}"
+  with_items: "{{druid_roles}}"
+
+- name: Copy role files to the target host
+  copy:
+    src: "../files/{{item}}.json"
+    dest: "/opt/druid/{{item}}.json"
+  with_items: "{{druid_roles}}"
+
+- name: Create roles
+  shell: >
+    curl -k -X POST -u "admin:{{ druid_admin_password }}"
+    -H 'Content-Type: application/json'
+    -d '@/opt/druid/{{item}}.json'
+    "{{ druid_security_api }}/authorization/db/Authorizer/roles/{{item}}/permissions"
+  with_items: "{{druid_roles}}"
+
+- name: Create Authenticator Users
+  shell: >
+    curl -k -X POST -u "admin:{{druid_admin_password}}"
+    "{{ druid_security_api }}/authentication/db/Authenticator/users/{{item.username}}"
+  with_items: "{{druid_users}}"
+
+- name: Create Authenticator User Credentials
+  shell: >
+    curl -k -X POST -u "admin:{{druid_admin_password}}"
+    -H 'Content-Type: application/json'
+    -d '{"password":"{{item.password}}"}'
+    "{{ druid_security_api }}/authentication/db/Authenticator/users/{{item.username}}/credentials"
+  with_items: "{{druid_users}}"
+
+- name: Create Authorizer Users
+  shell: >
+    curl -k -X POST -u "admin:{{druid_admin_password}}"
+    "{{ druid_security_api }}/authorization/db/Authorizer/users/{{item.username}}"
+  with_items: "{{druid_users}}"
+
+- name: Assign roles to Users
+  shell: >
+    curl -k -X POST -u "admin:{{druid_admin_password}}"
+    "{{ druid_security_api }}/authorization/db/Authorizer/users/{{item.username}}/roles/{{item.role}}"
+  with_items: "{{druid_users}}"

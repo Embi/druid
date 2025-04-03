@@ -1,0 +1,6 @@
+---
+- name: Configure Druid
+  hosts: "{{env_target}}"
+  become: true
+  tasks:
+    - import_tasks: ./tasks/setup_users.yml

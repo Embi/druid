@@ -1,0 +1,9 @@
+[
+    {
+        "resource": {
+            "name": "myawesome",
+            "type": "DATASOURCE"
+        },
+        "action": "READ"
+    }
+]

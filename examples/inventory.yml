@@ -1,0 +1,53 @@
+all:
+  children:
+    dev:
+      hosts:
+        # Without TLS
+        192.168.42.33:
+            postgresql_connection_uri: "postgresql://192.168.42.42:5432/druid"
+            druid_s3_endpoint: "http://192.168.42.43:9000"
+    prod:
+      hosts:
+        # With TLS
+        192.168.69.33:
+            postgresql_connection_uri: "postgresql://192.168.69.42:5432/druid"
+            druid_s3_endpoint: "http://192.168.69.43:9000"
+            druid_tls: true
+            druid_tls_cert: certs/druid.example.com.crt
+            druid_tls_key: certs/druid.example.com.key
+            druid_domain: druid.example.com
+  vars:
+    # Ansible access:
+    ansible_ssh_user: ansible
+    ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+    ansible_private_key_file: "{{ lookup('ansible.builtin.env', 'SSH_PRIVATE_KEY') }}"
+    ansible_python_interpreter: /usr/bin/python3
+    # ansible_become_password: somepass 
+    # TLS (false by default):
+    druid_tls: false
+    druid_host_tls_cert_path: /tmp/druid-cert.pem
+    druid_host_tls_key_path: /tmp/druid-key.pem
+    druid_truststore_path: /opt/druid/truststore.jks
+    druid_keystore_path: /opt/druid/keystore.jks
+    druid_keystore_password: "{{ lookup('ansible.builtin.env', 'DRUID_KEYSTORE_PASSWORD') }}"
+    # S3:
+    druid_s3_access_key: "{{ lookup('ansible.builtin.env', 'DRUID_S3_ACCESS_KEY') }}"
+    druid_s3_secret_key: "{{ lookup('ansible.builtin.env', 'DRUID_S3_SECRET_KEY') }}"
+    druid_segments_s3_bucket: druid
+    # PostgreSQL:
+    postgresql_password: "{{ lookup('ansible.builtin.env', 'POSTGRESQL_PASSWORD') }}"
+    postgresql_user: "{{ lookup('ansible.builtin.env', 'POSTGRESQL_USER') }}"
+    # Passwords for mandatory users:
+    druid_admin_password: "{{ lookup('ansible.builtin.env', 'DRUID_ADMIN_PASSWORD') }}"
+    druid_system_user_password: "{{ lookup('ansible.builtin.env', 'DRUID_SYSTEM_USER_PASSWORD') }}"
+    # Custom Roles and Users:
+    druid_roles:
+      - readonly_role
+      - readonly_myawesome_datasource
+    druid_users:
+      - username: tester
+        password: "{{ lookup('ansible.builtin.env', 'DRUID_TESTER_USER_PASSWORD') }}"
+        role: readonly_role
+      - username: user1
+        password: "{{ lookup('ansible.builtin.env', 'DRUID_USER1_USER_PASSWORD') }}"
+        role: readonly_myawesome_datasource

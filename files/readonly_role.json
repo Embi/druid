@@ -1,0 +1,51 @@
+[
+    {
+        "resource": {
+            "name": ".*",
+            "type": "CONFIG"
+        },
+        "action": "READ"
+    },
+    {
+        "resource": {
+            "name": ".*",
+            "type": "QUERY_CONTEXT"
+        },
+        "action": "READ"
+    },
+    {
+        "resource": {
+            "name": ".*",
+            "type": "SYSTEM_TABLE"
+        },
+        "action": "READ"
+    },
+    {
+        "resource": {
+            "name": ".*",
+            "type": "EXTERNAL"
+        },
+        "action": "READ"
+    },
+    {
+        "resource": {
+            "name": ".*",
+            "type": "DATASOURCE"
+        },
+        "action": "READ"
+    },
+    {
+        "resource": {
+            "name": ".*",
+            "type": "STATE"
+        },
+        "action": "READ"
+    },
+    {
+        "resource": {
+            "name": ".*",
+            "type": "VIEW"
+        },
+        "action": "READ"
+    }
+]
